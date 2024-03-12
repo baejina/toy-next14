@@ -1,10 +1,22 @@
-import { API_PATH } from "../../home/page"
 import {Suspense} from "react";
-import MovieInfo from "../../components/movie-info";
+import MovieInfo, {getMovie} from "../../components/movie-info";
 import MovieVideos from "../../components/movie-videos";
 
-type MovieDetailProps = { params: { id: string} }
-export default async function MovieDetail( { params: {id}, } : MovieDetailProps ) {
+interface IParams {
+    params: { id: string };
+}
+
+// ❤️영화 제목을 동적으로 meta정보에 제목 보여주고 싶어.
+// 참고로 ❤️export 키워드 추가 해야 프레임웍에서 찾아서 사용해.
+export async function generateMetadata( { params: {id} } : IParams ) {
+    const movie = await getMovie(id) // ❤️이미 캐싱한 호출했던 캐싱 데이터라서 두번 호출하는거 아님.
+    return {
+        title: movie.title
+    }
+}
+
+// detailPage 가 호출되면서 동시에 generateMeta 호출되.
+export default async function MovieDetailPage( { params: {id} } : IParams ) {
 
     // 2가지 API를 호출할때 아래와 같이 쓰면 순차적으로 동작해. 1번이 느리면 2번도 느리지.
     /*
